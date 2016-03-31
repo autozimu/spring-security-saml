@@ -32,6 +32,7 @@ import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.XMLObjectBuilder;
 import org.opensaml.xml.io.Marshaller;
 import org.opensaml.xml.io.MarshallingException;
+import org.opensaml.xml.security.BasicSecurityConfiguration;
 import org.opensaml.xml.security.SecurityHelper;
 import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.signature.*;
@@ -414,13 +415,14 @@ public class SAMLUtil {
      * @param signableMessage    object to sign
      * @param signingCredential credential to sign with
      * @param signingAlgorithm  signing algorithm to use (optional). Leave null to use credential's default algorithm
+     * @param digestAlgorithm   digest algorithm to use (optional). Leave null to use BasicSecurityConfiguration's default algorithm.
      * @param keyInfoGenerator name of generator used to create KeyInfo elements with key data
      * @throws org.opensaml.ws.message.encoder.MessageEncodingException
      *          thrown if there is a problem marshalling or signing the message
      * @return marshalled and signed message
      */
     @SuppressWarnings("unchecked")
-    public static Element marshallAndSignMessage(SignableXMLObject signableMessage, Credential signingCredential, String signingAlgorithm, String keyInfoGenerator) throws MessageEncodingException {
+    public static Element marshallAndSignMessage(SignableXMLObject signableMessage, Credential signingCredential, String signingAlgorithm, String digestAlgorithm, String keyInfoGenerator) throws MessageEncodingException {
 
         if (signingCredential != null && !signableMessage.isSigned()) {
 
@@ -434,8 +436,14 @@ public class SAMLUtil {
 
             signature.setSigningCredential(signingCredential);
 
+            BasicSecurityConfiguration secConfig = null;
+            if (digestAlgorithm != null) {
+                secConfig = (BasicSecurityConfiguration) Configuration.getGlobalSecurityConfiguration();
+                secConfig.setSignatureReferenceDigestMethod(digestAlgorithm);
+            }
+
             try {
-                SecurityHelper.prepareSignatureParams(signature, signingCredential, null, keyInfoGenerator);
+                SecurityHelper.prepareSignatureParams(signature, signingCredential, secConfig, keyInfoGenerator);
             } catch (org.opensaml.xml.security.SecurityException e) {
                 throw new MessageEncodingException("Error preparing signature for signing", e);
             }
@@ -557,8 +565,9 @@ public class SAMLUtil {
             if (extendedMetadata.isLocal() && extendedMetadata.isSignMetadata()) {
                 Credential credential = keyManager.getCredential(extendedMetadata.getSigningKey());
                 String signingAlgorithm = extendedMetadata.getSigningAlgorithm();
+                String digestAlgorithm = extendedMetadata.getDigestAlgorithm();
                 String keyGenerator = extendedMetadata.getKeyInfoGeneratorName();
-                element = SAMLUtil.marshallAndSignMessage(descriptor, credential, signingAlgorithm, keyGenerator);
+                element = SAMLUtil.marshallAndSignMessage(descriptor, credential, signingAlgorithm, digestAlgorithm, keyGenerator);
             } else {
                 element = SAMLUtil.marshallMessage(descriptor);
             }

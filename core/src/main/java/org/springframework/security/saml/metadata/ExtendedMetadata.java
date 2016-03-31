@@ -91,6 +91,11 @@ public class ExtendedMetadata implements Serializable, Cloneable {
     private String signingAlgorithm;
 
     /**
+     * Algorithm used for creation of digest of this entity.
+     */
+    private String digestAlgorithm;
+
+    /**
      * Flag indicating whether to sign metadata for this entity. Only valid for local entities.
      */
     private boolean signMetadata;
@@ -497,6 +502,29 @@ public class ExtendedMetadata implements Serializable, Cloneable {
      */
     public void setSigningAlgorithm(String signingAlgorithm) {
         this.signingAlgorithm = signingAlgorithm;
+    }
+
+    /**
+     * Get digest algorithm.
+     *
+     * @return Digest algorithm URI, if set. Otherwise returns null.
+     */
+    public String getDigestAlgorithm() {
+        return digestAlgorithm;
+    }
+
+    /**
+     * Set digest algorithm.
+     *
+     * Typical values are:
+     * http://www.w3.org/2001/04/xmlenc#sha1
+     * http://www.w3.org/2001/04/xmlenc#sha256
+     * http://www.w3.org/2001/04/xmlenc#sha384
+     * http://www.w3.org/2001/04/xmlenc#sha512
+     * http://www.w3.org/2001/04/xmlenc#ripemd160
+     */
+    public void setDigestAlgorithm(String digestAlgorithm) {
+        this.digestAlgorithm = digestAlgorithm;
     }
 
     /**

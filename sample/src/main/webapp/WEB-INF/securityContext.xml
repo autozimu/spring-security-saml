@@ -117,6 +117,9 @@
             <bean class="org.springframework.security.saml.metadata.MetadataGenerator">
                 <property name="extendedMetadata">
                     <bean class="org.springframework.security.saml.metadata.ExtendedMetadata">
+                        <property name="signMetadata" value="true" />
+                        <property name="signingAlgorithm" value="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256" />
+                        <property name="digestAlgorithm" value="http://www.w3.org/2001/04/xmlenc#sha256"/>
                         <property name="idpDiscoveryEnabled" value="true"/>
                     </bean>
                 </property>
